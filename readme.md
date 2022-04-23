@@ -59,7 +59,7 @@ node index.ts
 
 #### Especifications
 
-##### `[POST]` /api/create-room
+##### `POST` /api/create-room
 
 `Body`
 
@@ -82,7 +82,7 @@ node index.ts
   "genders": string[],
 ```
 
-##### `[POST]` join-room
+##### `POST` join-room
 
 `Body`
 
@@ -107,7 +107,7 @@ node index.ts
   "genders": string[],
 ```
 
-##### `[GET]` fetch-rooms
+##### `GET` fetch-rooms
 
 `Response`
 
@@ -122,7 +122,7 @@ node index.ts
   ]
 ```
 
-##### `[POST]` exit-room
+##### `POST` exit-room
 
 `Body`
 
@@ -138,7 +138,7 @@ node index.ts
   "message": string,
 ```
 
-##### `[PUT]` update-room
+##### `PUT` update-room
 
 `Body`
 
@@ -165,7 +165,7 @@ node index.ts
   "genders": string[],
 ```
 
-##### `[POST]` restart-room
+##### `POST` restart-room
 
 `Body`
 
