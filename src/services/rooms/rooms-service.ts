@@ -19,6 +19,22 @@ export class RoomsService {
     return newRoom;
   }
 
+  public async restartRoom(roomId: string) {
+    let room = this.Rooms.find((room) => room.id == roomId);
+
+    if (room) {
+      room.trackList = await spotifyService.getRecommendations();
+      room.started = false;
+      room.finished = false;
+      room.resetPlayers();
+
+      room.addPlayer(room.owner);
+      return room;
+    } else {
+      throw new Error("Room not found");
+    }
+  }
+
   // Add the new room into the rooms list
   private addRoom(room: Room): void {
     this.Rooms.push(room);

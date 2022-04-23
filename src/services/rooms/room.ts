@@ -34,6 +34,13 @@ export class Room {
     } else return false;
   }
 
+  update(room: any) {
+    this.genders = room.genders;
+    this.steps = room.steps;
+    this.started = room.started;
+    this.finished = room.finished;
+  }
+
   // return room on json format
   toJSON(): any {
     return {
@@ -65,6 +72,10 @@ export class Room {
     } else {
       this._players.push(player);
     }
+  }
+
+  public resetPlayers(): void {
+    this._players = [];
   }
 
   public get id(): string {

@@ -147,7 +147,7 @@ export class SpotifyService {
 
   private getAccessToken() {
     this.spotifyApi.clientCredentialsGrant().then((data: any) => {
-      console.log("Your access token is " + data.body["access_token"]);
+      console.log("Token Access Generated!");
       this.spotifyApi.setAccessToken(data.body["access_token"]);
     });
   }
