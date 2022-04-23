@@ -25,7 +25,7 @@ You can understand more of the game in the Front-End Readme (will be added here 
 
 ## Installation
 
-> Run the following command in your terminal:
+Run the following command in your terminal:
 
 ```shell
 npm install
@@ -61,67 +61,57 @@ node index.ts
 
 ##### [POST] /api/create-room
 
-Body:
+`Body`
 
 ```json
-{
   "steps": number (required),
   "owner": string (required),
   "genders": string[] (optional),
-}
 ```
 
-> The back-end will generate an Unique ID to indentify the room that will be returned.
+- The back-end will generate an Unique ID to indentify the room that will be returned.
 
-Response:
+`Response`
 
 ```json
-{
-      "id": UUID,
-      "players": string[],
-      "tracks": track_list[],
-      "started": boolean,
-      "steps": number,
-      "genders": string[],
-}
+  "id": UUID,
+  "players": string[],
+  "tracks": track_list[],
+  "started": boolean,
+  "steps": number,
+  "genders": string[],
 ```
 
 ##### [POST] join-room
 
-Body:
+`Body`
 
 ```json
-{
   "roomID": UUID (required),
   "user": {
     "name": string (required),
     "crowns": number (optional)
   }
-}
 ```
 
-> Crowns: Actual number of victories.
+- Crowns: Actual number of victories.
 
-Response:
+`Response`
 
 ```json
-{
-      "id": UUID,
-      "players": string[],
-      "tracks": track_list[],
-      "started": boolean,
-      "steps": number,
-      "genders": string[],
-}
+  "id": UUID,
+  "players": string[],
+  "tracks": track_list[],
+  "started": boolean,
+  "steps": number,
+  "genders": string[],
 ```
 
 ##### [GET] fetch-rooms
 
-Response:
-`List of rooms`
+`Response`
 
 ```json
-{
   [
     "id": UUID,
     "players": string[],
@@ -130,35 +120,29 @@ Response:
     "steps": number,
     "genders": string[],
   ]
-}
 ```
 
 ##### [POST] exit-room
 
-Body:
+`Body`
 
 ```json
-{
   "roomId": UUID, (required)
   "user": string, (required)
-}
 ```
 
-Response:
+`Response`
 
 ```json
-{
   "status": 200 | 404,
   "message": string,
-}
 ```
 
 ##### [PUT] update-room
 
-Body:
+`Body`
 
 ```json
-{
   "roomId": UUID, (required)
   "room": {
     "started": boolean, (required)
@@ -166,41 +150,34 @@ Body:
     "genders": string[], (required)
     "finished": boolean, (required)
   }
-}
 ```
 
 > Even if not changed all the informations, all of them need to be sent.
 
-Response:
+`Response`
 
 ```json
-{
-      "id": UUID,
-      "players": string[],
-      "tracks": track_list[],
-      "started": boolean,
-      "steps": number,
-      "genders": string[],
-}
+  "id": UUID,
+  "players": string[],
+  "tracks": track_list[],
+  "started": boolean,
+  "steps": number,
+  "genders": string[],
 ```
 
 ##### [POST] restart-room
 
-Body:
+`Body`
 
 ```json
-{
   "roomId": UUID, (required)
-}
 ```
 
-Response:
+`Response`
 
 ```json
-{
-      "status": 200 | 404,
-      "message": string,
-}
+  "status": 200 | 404,
+  "message": string,
 ```
 
 ## Patchnotes
