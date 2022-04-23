@@ -31,13 +31,6 @@ socketio.on("connection", (socket) => {
   });
 });
 
-// GET: /api/test-websocket - Throw a message to all clients
-app.get("/api/test-websocket", (req: Request, res: Response) => {
-  res.send("Hello World!");
-
-  socketio.sockets.emit("message", "Hello World");
-});
-
 // GET: / - return an HTML for intern tests
 app.get("/", async (req: Request, res: Response) => {
   // Includes the user on socketio server
@@ -119,11 +112,6 @@ app.put("/api/update-room", async (req: Request, res: Response) => {
   }
 });
 
-// GET: /callback - Callback from the payment
-app.get("/callback", async (req: Request, res: Response) => {
-  console.log(req, res);
-});
-
 // POST: /api/restart-room - Reset the room state and create a new Tracklist
 app.post("/api/restart-room", async (req: Request, res: Response) => {
   let body = req.body;
@@ -137,6 +125,18 @@ app.post("/api/restart-room", async (req: Request, res: Response) => {
     res.send("Room not found");
     res.status(404);
   }
+});
+
+// GET: /callback - Callback from the payment
+app.get("/callback", async (req: Request, res: Response) => {
+  console.log(req, res);
+});
+
+// GET: /api/test-websocket - Throw a message to all clients
+app.get("/api/test-websocket", (req: Request, res: Response) => {
+  res.send("Hello World!");
+
+  socketio.sockets.emit("message", "Hello World");
 });
 
 http.listen(port, (): void => {

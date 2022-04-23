@@ -202,3 +202,21 @@ Response:
       "message": string,
 }
 ```
+
+## Patchnotes
+
+23/04/2022:
+
+- Arthur (thurcst):
+  - Created all interfaces to be used in the project.
+  - Created all classes to be used in the project.
+  - Choosed the best way to organize the project.
+  - Picked one library to (not) implement Spotify API.
+  - Added the `/` route to be the test page.
+  - Added the `/api/test-websocket` route to test websocket.
+  - Added the `/api/create-room` route.
+  - Added the `/api/fetch-rooms` route.
+  - Added the `/api/join-room` route.
+  - Added the `/api/exit-room` route.
+  - Added the `/api/update-room` route.
+  - Added the `/api/restart-room` route.
