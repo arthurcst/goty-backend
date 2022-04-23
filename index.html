@@ -5,10 +5,35 @@
   </head>
   <script src="/socket.io/socket.io.js"></script>
 
-  <script>
-    const socket = io();
-  </script>
   <body>
-    Hello
+    <div id="messagers">
+      <span>Mensagens</span>
+    </div>
+
+    <input type="text" id="message" placeholder="Digite sua mensagem" />
+    <button id="send">Enviar</button>
   </body>
+
+  <script>
+    let socket = io();
+
+    socket.on("connect", () => {
+      console.log("Connected to server");
+    });
+
+    socket.on("message", (message) => {
+      console.log(message);
+    });
+
+    document.getElementById("send").addEventListener("click", sendMessage);
+
+    function sendMessage() {
+      let message = document.getElementById("message").value;
+
+      socket.emit("message", "abalo", function (response) {
+        console.log(response);
+      });
+      document.getElementById("message").value = "";
+    }
+  </script>
 </html>
