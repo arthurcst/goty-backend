@@ -69,7 +69,7 @@ node index.ts
             "name": string (required),
             "crowns": number (optional),
             },
-  "genders": string[] (optional),
+  "genres": string[] (optional),
 ```
 
 - The back-end will generate an Unique ID to indentify the room that will be returned.
@@ -82,7 +82,7 @@ node index.ts
   "tracks": track_list[],
   "started": boolean,
   "steps": number,
-  "genders": string[],
+  "genres": string[],
 ```
 
 ##### `POST` /api/join-room
@@ -107,7 +107,7 @@ node index.ts
   "tracks": track_list[],
   "started": boolean,
   "steps": number,
-  "genders": string[],
+  "genres": string[],
 ```
 
 ##### `GET` /api/fetch-rooms
@@ -121,7 +121,7 @@ node index.ts
     "tracks": track_list[],
     "started": boolean,
     "steps": number,
-    "genders": string[],
+    "genres": string[],
   ]
 ```
 
@@ -150,7 +150,7 @@ node index.ts
   "room": {
     "started": boolean, (required)
     "steps": number, (required)
-    "genders": string[], (required)
+    "genres": string[], (required)
     "finished": boolean, (required)
   }
 ```
@@ -165,7 +165,7 @@ node index.ts
   "tracks": track_list[],
   "started": boolean,
   "steps": number,
-  "genders": string[],
+  "genres": string[],
 ```
 
 ##### `POST` /api/restart-room

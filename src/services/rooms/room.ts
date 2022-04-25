@@ -5,7 +5,7 @@ import { User } from "./../user/user";
 export class Room {
   private _players: User[] = []; // List of users
   private _id: string; // Room ID
-  private _genders: string[] = []; // Define the gender of musics
+  private _genres: string[] = []; // Define the gender of musics
   private _steps = 0; // Define the quantity of rounds
 
   trackList: Track[] = [];
@@ -14,7 +14,7 @@ export class Room {
 
   owner: User;
 
-  constructor(steps: number, owner: User, genders?: string[]) {
+  constructor(steps: number, owner: User, genres?: string[]) {
     this._id = randomUUID();
     this._steps = steps;
 
@@ -23,8 +23,8 @@ export class Room {
 
     this.owner = owner;
 
-    if (genders) {
-      this.genders = genders;
+    if (genres) {
+      this.genres = genres;
     }
   }
 
@@ -35,7 +35,7 @@ export class Room {
   }
 
   update(room: any) {
-    this.genders = room.genders;
+    this.genres = room.genres;
     this.steps = room.steps;
     this.started = room.started;
     this.finished = room.finished;
@@ -49,7 +49,7 @@ export class Room {
       tracks: this.trackList,
       started: this.started,
       steps: this._steps,
-      genders: this._genders,
+      genres: this._genres,
     };
   }
 
@@ -82,12 +82,12 @@ export class Room {
     return this._id;
   }
 
-  get genders(): any[] {
-    return this._genders;
+  get genres(): any[] {
+    return this._genres;
   }
 
-  set genders(genders: any[]) {
-    this._genders = genders;
+  set genres(genres: any[]) {
+    this._genres = genres;
   }
 
   get steps(): number {

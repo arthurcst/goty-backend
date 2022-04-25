@@ -58,7 +58,7 @@ export class RoomsService {
   // Find room by Gender
   public getRoomsByGender(genderTracked: string): Room[] {
     return this.Rooms.filter((room) =>
-      room.genders.find((gender) => gender === genderTracked)
+      room.genres.find((gender) => gender === genderTracked)
     );
   }
 }

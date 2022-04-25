@@ -45,7 +45,7 @@ app.post("/api/create-room", async (req: Request, res: Response) => {
 
   let owner = new User(body.owner.name, body.owner.crowns);
 
-  let room = roomsService.createRoom(body.steps, owner, body.genders);
+  let room = roomsService.createRoom(body.steps, owner, body.genres);
 
   room.then((room) => {
     res.send(room.toJSON());
