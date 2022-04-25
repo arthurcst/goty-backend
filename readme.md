@@ -65,7 +65,10 @@ node index.ts
 
 ```json
   "steps": number (required),
-  "owner": string (required),
+  "owner": {
+            "name": string (required),
+            "crowns": number (optional),
+            },
   "genders": string[] (optional),
 ```
 
