@@ -10,8 +10,8 @@ export class RoomsService {
   constructor() {}
 
   // Creates a room using infos from body request
-  public async createRoom(steps: number, owner: User, gender?: string[]) {
-    let newRoom = new Room(steps, owner, gender);
+  public async createRoom(steps: number, owner: User, name: string, gender?: string[]) {
+    let newRoom = new Room(steps, owner, name, gender);
     newRoom.trackList = await spotifyService.getRecommendations();
 
     this.addRoom(newRoom);
@@ -19,8 +19,8 @@ export class RoomsService {
     return newRoom;
   }
 
-  public async restartRoom(roomId: string) {
-    let room = this.Rooms.find((room) => room.id == roomId);
+  public async restartRoom(roomName: string) {
+    let room = this.Rooms.find((room) => room.name == roomName);
 
     if (room) {
       room.trackList = await spotifyService.getRecommendations();
@@ -41,8 +41,8 @@ export class RoomsService {
   }
 
   // Get an especific room
-  public getRoom(roomId: string): Room | undefined {
-    return this.Rooms.find((room) => room.id === roomId);
+  public getRoom(roomName: string): Room | undefined {
+    return this.Rooms.find((room) => room.name === roomName);
   }
 
   // Get rooms list
@@ -50,9 +50,26 @@ export class RoomsService {
     return this.Rooms;
   }
 
-  // Find room by Owner name
-  public getRoomsByUser(user: string): Room[] {
-    return this.Rooms.filter((room) => room.owner.name === user);
+  // Find room by userName
+  public getRoomsByUserName(userName: string): Room | undefined {
+    return this.Rooms.find((room) => {
+      room.players.some((playerElement) => playerElement.name === userName);
+    });
+  }
+
+  // Find room by userId
+  public getRoomsByUserId(userId: string): Room {
+    const room = this.Rooms.find((room) => {
+      const hasPlayer = room.players.some((playerElement) => playerElement.socketId === userId);
+      const hasOwner = room.owner.socketId === userId;
+      const functionReturn = hasPlayer || hasOwner;
+      return functionReturn;
+    });
+    if (room) {
+      return room;
+    } else {
+      throw new Error("Room not found");
+    }
   }
 
   // Find room by Gender

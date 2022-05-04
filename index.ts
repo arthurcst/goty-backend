@@ -17,61 +17,58 @@ const roomsService = new RoomsService();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// TODO: Implement start returning the spotify
+// TODO: Create event that return when users join the room
+// TODO: return the points after the stop
+
 socketio.on("connection", (socket) => {
-  console.log("User connected");
+  console.log("User connected root");
 
-  socket.send("ID: 112");
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
+  socket.on("join-room", (roomName, userName, steps, cb) => {
+    console.log('roomName', roomName);
+    console.log('userName', userName);
+    console.log('steps', steps);
+    console.log('cb', cb);
+    try {
+      const user = new User(userName, socket.id);
+      const room = roomsService.getRoom(roomName);
+      if (room) {
+        room.addPlayer(user);
+        socket.join(roomName);
+        cb('joined existing room called ' + roomName);
+      } else {
+        const newRoom = roomsService.createRoom(steps, user, roomName);
+        newRoom.then((roomElement) => {
+          socket.join(roomName);
+          cb('created room called ' + roomName); 
+        });
+      } 
+    } catch (error) {
+      cb(error);
+    }
   });
 
-  socket.on("message", (message) => {
-    console.log(message);
-  });
+  socket.on('stop', (cb) => {
+    console.log(cb)
+    try { 
+      const room = roomsService.getRoomsByUserId(socket.id);
+      const user = room.findPlayerById(socket.id);
+      socket.to(room.name).emit('propagate-stop', user.name + ' stopped the room');
+      cb('stopped');
+    } catch (error) {
+      cb(error);
+    }
+  })
+
+  // socket.on("start");
 });
 
 // GET: / - return an HTML for intern tests
-app.get("/", async (req: Request, res: Response) => {
+app.get("/", async (req: Request, res: Response) => { 
   // Includes the user on socketio server
-  socketio.emit("user", "User connected");
+  // socketio.emit("user", "User connected test");
 
   res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// POST: /api/create-room - Create a new room
-app.post("/api/create-room", async (req: Request, res: Response) => {
-  let body = req.body;
-
-  let owner = new User(body.owner.name, body.owner.crowns);
-
-  let room = roomsService.createRoom(body.steps, owner, body.genres);
-
-  room.then((room) => {
-    res.send(room.toJSON());
-  });
-});
-
-// GET: /api/fetch-rooms - Return a list with all rooms
-app.get("/api/fetch-rooms", async (req: Request, res: Response) => {
-  const rooms = roomsService.getRooms();
-  res.send(rooms);
-});
-
-// POST: /api/join-room - join a room and return the infos
-app.post("/api/join-room", async (req: Request, res: Response) => {
-  let body = req.body;
-
-  let room = roomsService.getRoom(body.roomId);
-
-  if (room) {
-    room.addPlayer(body.user);
-    res.send(room.toJSON());
-    res.status(200);
-  } else {
-    res.send("Room not found");
-    res.status(404);
-  }
 });
 
 // POST: /api/exit-room - remove an user from a room
@@ -90,22 +87,6 @@ app.post("/api/exit-room", async (req: Request, res: Response) => {
       res.send("Player not found");
       res.status(404);
     }
-  } else {
-    res.send("Room not found");
-    res.status(404);
-  }
-});
-
-// PUT: /api/update-room - update the room infos
-app.put("/api/update-room", async (req: Request, res: Response) => {
-  let body = req.body;
-
-  let room = roomsService.getRoom(body.roomId);
-
-  if (room) {
-    room.update(body.room);
-    res.send(room.toJSON());
-    res.status(200);
   } else {
     res.send("Room not found");
     res.status(404);
@@ -132,11 +113,13 @@ app.get("/callback", async (req: Request, res: Response) => {
   console.log(req, res);
 });
 
-// GET: /api/test-websocket - Throw a message to all clients
-app.get("/api/test-websocket", (req: Request, res: Response) => {
-  res.send("Hello World!");
+// POST: /api/test-websocket - Throw a message to all clients
+app.post("/api/test-websocket", (req: Request, res: Response) => {
+  const body = req.body;
 
-  socketio.sockets.emit("message", "Hello World");
+  socketio.sockets.emit("message", body.message);
+
+  res.send("Message sent");
 });
 
 http.listen(port, (): void => {

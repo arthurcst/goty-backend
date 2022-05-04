@@ -3,7 +3,7 @@ const SpotifyWebApi = require("spotify-web-api-node");
 
 export class SpotifyService {
   client_id = "705102acdb8e43609a1d8920dc8f371d";
-  client_secret = "f3caa2b75f5b47d1b879336e181229a4";
+  client_secret = "c683be471e3244c990f335fd2040b4df"; // TODO: add this to .env before commiting
   redirect_uri = "http://localhost:3000/";
 
   genres = [

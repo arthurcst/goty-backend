@@ -6,34 +6,50 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <body>
-    <div id="messagers">
+    <!-- <div id="messagers">
       <span>Mensagens</span>
     </div>
 
     <input type="text" id="message" placeholder="Digite sua mensagem" />
-    <button id="send">Enviar</button>
+    <button id="send">Enviar</button> -->
+    <div>
+      <label for="say">roomName</label>
+      <input name="roomName" id="room" value="amigos">
+    </div>
+    <div>
+      <label for="to">user.name</label>
+      <input name="userName" id="user" value="Scala">
+    </div>
+    <div>
+      <button onclick="handleSubmit()">Join room</button>
+    </div>
+    <button onclick="handleStop()">STOP!!</button>
   </body>
 
   <script>
     let socket = io();
 
+    const handleSubmit = (e) => {
+      const roomValue = document.getElementById("room").value;
+      const userValue = document.getElementById("user").value;
+      socket.emit("join-room", roomValue, userValue, 1, function (response) {
+        console.log(response);
+      });
+      console.log('request-sent') 
+    }; 
+
     socket.on("connect", () => {
       console.log("Connected to server");
     });
 
-    socket.on("message", (message) => {
+    socket.on("propagate-stop", (message) => {
       console.log(message);
     });
 
-    document.getElementById("send").addEventListener("click", sendMessage);
-
-    function sendMessage() {
-      let message = document.getElementById("message").value;
-
-      socket.emit("message", "abalo", function (response) {
-        console.log(response);
+    const handleStop = () => {
+      socket.emit("stop", (message) => {
+        console.log(message)
       });
-      document.getElementById("message").value = "";
-    }
+    };
   </script>
 </html>

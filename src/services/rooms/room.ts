@@ -1,10 +1,9 @@
-import { randomUUID } from "crypto";
 import { Track } from "./../spotify/spotify";
 import { User } from "./../user/user";
 
 export class Room {
   private _players: User[] = []; // List of users
-  private _id: string; // Room ID
+  private _name: string; // Room ID
   private _genres: string[] = []; // Define the gender of musics
   private _steps = 0; // Define the quantity of rounds
 
@@ -14,8 +13,8 @@ export class Room {
 
   owner: User;
 
-  constructor(steps: number, owner: User, genres?: string[]) {
-    this._id = randomUUID();
+  constructor(steps: number, owner: User, name: string, genres?: string[]) {
+    this._name = name;
     this._steps = steps;
 
     this.started = false;
@@ -29,7 +28,7 @@ export class Room {
   }
 
   equals(room: Room): boolean {
-    if (this._id === room.id) {
+    if (this._name === room.name) {
       return true;
     } else return false;
   }
@@ -44,7 +43,7 @@ export class Room {
   // return room on json format
   toJSON(): any {
     return {
-      id: this._id,
+      name: this._name,
       players: this._players,
       tracks: this.trackList,
       started: this.started,
@@ -73,13 +72,23 @@ export class Room {
       this._players.push(player);
     }
   }
+  
+  // find user by Id
+  public findPlayerById(socketId: string): User {
+    const player = this._players.find((player) => player.socketId === socketId);
+    if (player) {
+      return player;
+    } else {
+      throw new Error("Player not found");
+    }
+  }
 
   public resetPlayers(): void {
     this._players = [];
   }
 
-  public get id(): string {
-    return this._id;
+  public get name(): string {
+    return this._name;
   }
 
   get genres(): any[] {
