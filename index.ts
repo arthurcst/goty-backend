@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 socketio.on("connection", (socket) => {
   console.log("User connected root");
 
-  socket.on("join-room", (roomName, userName, steps, cb) => {
+  socket.on("create-room", (roomName, userName, steps, cb) => {
     console.log('roomName', roomName);
     console.log('userName', userName);
     console.log('steps', steps);
@@ -33,15 +33,34 @@ socketio.on("connection", (socket) => {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
       if (room) {
-        room.addPlayer(user);
-        socket.join(roomName);
-        cb('joined existing room called ' + roomName);
+        cb('room already exists');
       } else {
         const newRoom = roomsService.createRoom(steps, user, roomName);
         newRoom.then((roomElement) => {
           socket.join(roomName);
-          cb('created room called ' + roomName); 
+          cb(roomName); 
+          console.log(userName, 'created', roomName)
         });
+      } 
+    } catch (error) {
+      cb(error);
+    }
+  });
+
+  socket.on("join-room", (roomName, userName, cb) => {
+    console.log('roomName', roomName);
+    console.log('userName', userName);
+    console.log('cb', cb);
+    try {
+      const user = new User(userName, socket.id);
+      const room = roomsService.getRoom(roomName);
+      if (room) {
+        room.addPlayer(user);
+        socket.join(roomName);
+        cb(roomName);
+        console.log(userName, 'entered room', roomName);
+      } else {
+        cb('room dos not exist');
       } 
     } catch (error) {
       cb(error);
