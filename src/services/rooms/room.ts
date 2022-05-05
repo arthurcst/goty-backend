@@ -53,7 +53,8 @@ export class Room {
   }
 
   get players(): User[] {
-    return this._players;
+    // sort by crowns
+    return this._players.sort((a, b) => b.crowns - a.crowns);
   }
 
   // Remove a player from a room

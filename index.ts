@@ -17,18 +17,13 @@ const roomsService = new RoomsService();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// TODO: Implement start returning the spotify
-// TODO: Create event that return when users join the room
-// TODO: return the points after the stop
+// TODO: get points in stop
+// TODO: get points in propagate stop
 
 socketio.on("connection", (socket) => {
   console.log("User connected root");
 
   socket.on("create-room", (roomName, userName, steps, cb) => {
-    console.log("roomName", roomName);
-    console.log("userName", userName);
-    console.log("steps", steps);
-    console.log("cb", cb);
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
@@ -48,9 +43,6 @@ socketio.on("connection", (socket) => {
   });
 
   socket.on("join-room", (roomName, userName, cb) => {
-    console.log("roomName", roomName);
-    console.log("userName", userName);
-    console.log("cb", cb);
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
@@ -71,13 +63,15 @@ socketio.on("connection", (socket) => {
   });
 
   socket.on("stop", (cb) => {
-    console.log(cb);
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
       const user = room.findPlayerById(socket.id);
       socket
         .to(room.name)
-        .emit("propagate-stop", user.name + " stopped the room");
+        .to(socket.id)
+        .emit("propagate-stop", user.name + " stopped the room", (points: number) => {
+          user.crowns = points;
+        });
       cb("stopped");
     } catch (error) {
       cb(error);
@@ -85,7 +79,17 @@ socketio.on("connection", (socket) => {
   });
 
   socket.on("start", (callback) => {
-    console.log(callback);
+    try {
+      const room = roomsService.getRoomsByUserId(socket.id);
+      const trackList = JSON.stringify(room.trackList.slice(0, room.steps))
+      socket.to(room.name).emit("propagate-start", trackList);
+      callback(trackList);
+    } catch (error) {
+      callback(error);
+    }
+  });
+
+  socket.on("send-points", (callback) => {
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
       const trackList = JSON.stringify(room.trackList.slice(0, room.steps))
@@ -105,6 +109,14 @@ app.get("/", async (req: Request, res: Response) => {
   // socketio.emit("user", "User connected test");
 
   res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/room-points/:roomName", async (req: Request, res: Response) => {
+  const roomName = req.params.roomName;
+  const room = roomsService.getRoom(roomName);
+  room?.players
+
+  res.json(room?.players);
 });
 
 // POST: /api/exit-room - remove an user from a room
