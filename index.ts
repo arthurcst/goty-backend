@@ -25,32 +25,32 @@ socketio.on("connection", (socket) => {
   console.log("User connected root");
 
   socket.on("create-room", (roomName, userName, steps, cb) => {
-    console.log('roomName', roomName);
-    console.log('userName', userName);
-    console.log('steps', steps);
-    console.log('cb', cb);
+    console.log("roomName", roomName);
+    console.log("userName", userName);
+    console.log("steps", steps);
+    console.log("cb", cb);
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
       if (room) {
-        cb('room already exists');
+        cb("room already exists");
       } else {
         const newRoom = roomsService.createRoom(steps, user, roomName);
         newRoom.then((roomElement) => {
           socket.join(roomName);
-          cb(roomName); 
-          console.log(userName, 'created', roomName)
+          cb(roomName);
+          console.log(userName, "created", roomName);
         });
-      } 
+      }
     } catch (error) {
       cb(error);
     }
   });
 
   socket.on("join-room", (roomName, userName, cb) => {
-    console.log('roomName', roomName);
-    console.log('userName', userName);
-    console.log('cb', cb);
+    console.log("roomName", roomName);
+    console.log("userName", userName);
+    console.log("cb", cb);
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
@@ -58,32 +58,46 @@ socketio.on("connection", (socket) => {
         room.addPlayer(user);
         socket.join(roomName);
         cb(roomName);
-        console.log(userName, 'entered room', roomName);
+        console.log(userName, "entered room", roomName);
       } else {
-        cb('room dos not exist');
-      } 
+        cb("room dos not exist");
+      }
     } catch (error) {
       cb(error);
     }
   });
 
-  socket.on('stop', (cb) => {
-    console.log(cb)
-    try { 
+  socket.on("stop", (cb) => {
+    console.log(cb);
+    try {
       const room = roomsService.getRoomsByUserId(socket.id);
       const user = room.findPlayerById(socket.id);
-      socket.to(room.name).emit('propagate-stop', user.name + ' stopped the room');
-      cb('stopped');
+      socket
+        .to(room.name)
+        .emit("propagate-stop", user.name + " stopped the room");
+      cb("stopped");
     } catch (error) {
       cb(error);
     }
-  })
+  });
+
+  socket.on("start", (callback) => {
+    console.log(callback);
+    try {
+      const room = roomsService.getRoomsByUserId(socket.id);
+
+      socket.to(room.name).emit("propagate-start", room.trackList);
+      callback("started");
+    } catch (error) {
+      callback(error);
+    }
+  });
 
   // socket.on("start");
 });
 
 // GET: / - return an HTML for intern tests
-app.get("/", async (req: Request, res: Response) => { 
+app.get("/", async (req: Request, res: Response) => {
   // Includes the user on socketio server
   // socketio.emit("user", "User connected test");
 
