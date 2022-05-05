@@ -57,7 +57,10 @@ socketio.on("connection", (socket) => {
       if (room) {
         room.addPlayer(user);
         socket.join(roomName);
-        cb(roomName);
+
+        const players = room.players.map(function(p) { return p.name; }).concat(room.owner.name)
+        socket.to(room.name).emit("room-update", players);
+        cb(players);
         console.log(userName, "entered room", roomName);
       } else {
         cb("room dos not exist");
