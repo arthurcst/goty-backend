@@ -85,9 +85,9 @@ socketio.on("connection", (socket) => {
     console.log(callback);
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
-
-      socket.to(room.name).emit("propagate-start", room.trackList);
-      callback("started");
+      const trackList = JSON.stringify(room.trackList.slice(0, room.steps))
+      socket.to(room.name).emit("propagate-start", trackList);
+      callback(trackList);
     } catch (error) {
       callback(error);
     }
