@@ -43,6 +43,12 @@ _OBS_: Nodemon is only for development purposes. If you want to run the server i
 node index.ts
 ```
 
+## How to play with friends?
+
+We can use ngrok to share the server with other people.
+
+You can check ngrok documentation [here](ngrok.com).
+
 ## Usage
 
 ### Routes
@@ -200,3 +206,16 @@ node index.ts
   - Added the `/api/exit-room` route.
   - Added the `/api/update-room` route.
   - Added the `/api/restart-room` route.
+
+11/05/2022:
+
+- Arthur (thurcst):
+  - After our infrastructure change, we decided to use WebSocket protocol instead of http calls.
+  - Added the `stop` and `trackAssert` events on websocket.
+    - The `stop` event will be fired when the user stops the game.
+    - The `trackAssert` event will be fired after the stop, to make players send their crowns.
+  - Created the result attribute on room class.
+  - Deleted old stop implementation.
+  - Created the `disconnect` routine on websocket.
+    - The `disconnect` routine will be fired when the user disconnects from the server.
+      - We remove player from room if he is in one.
