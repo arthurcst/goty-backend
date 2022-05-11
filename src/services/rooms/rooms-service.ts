@@ -10,9 +10,16 @@ export class RoomsService {
   constructor() {}
 
   // Creates a room using infos from body request
-  public async createRoom(steps: number, owner: User, name: string, gender?: string[]) {
+  public async createRoom(
+    steps: number,
+    owner: User,
+    name: string,
+    gender?: string[]
+  ) {
     let newRoom = new Room(steps, owner, name, gender);
     newRoom.trackList = await spotifyService.getRecommendations();
+
+    newRoom.addPlayer(owner);
 
     this.addRoom(newRoom);
 
@@ -58,9 +65,11 @@ export class RoomsService {
   }
 
   // Find room by userId
-  public getRoomsByUserId(userId: string): Room {
+  public getRoomsByUserId(userId: string): Room | undefined {
     const room = this.Rooms.find((room) => {
-      const hasPlayer = room.players.some((playerElement) => playerElement.socketId === userId);
+      const hasPlayer = room.players.some(
+        (playerElement) => playerElement.socketId === userId
+      );
       const hasOwner = room.owner.socketId === userId;
       const functionReturn = hasPlayer || hasOwner;
       return functionReturn;
@@ -68,7 +77,7 @@ export class RoomsService {
     if (room) {
       return room;
     } else {
-      throw new Error("Room not found");
+      return undefined;
     }
   }
 

@@ -17,16 +17,46 @@ const roomsService = new RoomsService();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// TODO: get points in stop
-// TODO: get points in propagate stop
-
 socketio.on("connection", (socket) => {
-  console.log("User connected root");
+  console.log(socket.id, " connected Websocket");
+
+  socket.on("start", (callback) => {
+    try {
+      const room = roomsService.getRoomsByUserId(socket.id);
+      const trackList = JSON.stringify(room?.trackList.slice(0, room.steps));
+
+      if (room) {
+        socket.to(room.name).emit("propagate-start", trackList);
+
+        console.log("room", room.name, "started");
+
+        callback(trackList);
+      }
+    } catch (error) {
+      callback(error);
+    }
+  });
+
+  socket.on("stop", (cb) => {
+    try {
+      const room = roomsService.getRoomsByUserId(socket.id);
+      if (room) {
+        const user = room.findPlayerById(socket.id);
+
+        socket.to(room.name).emit("propagate-stop");
+
+        cb("stopped");
+      }
+    } catch (error) {
+      cb(error);
+    }
+  });
 
   socket.on("create-room", (roomName, userName, steps, cb) => {
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
+
       if (room) {
         cb("room already exists");
       } else {
@@ -46,14 +76,21 @@ socketio.on("connection", (socket) => {
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
+
       if (room) {
         room.addPlayer(user);
         socket.join(roomName);
 
-        const players = room.players.map(function(p) { return p.name; }).concat(room.owner.name)
+        const players = room.players.map(function (p) {
+          return p.name;
+        });
+
         socket.to(room.name).emit("room-update", players);
+
         cb(players);
+
         console.log(userName, "entered room", roomName);
+        console.log(room?.players);
       } else {
         cb("room dos not exist");
       }
@@ -62,45 +99,88 @@ socketio.on("connection", (socket) => {
     }
   });
 
-  socket.on("stop", (cb) => {
+  socket.on("disconnect", () => {
+    console.log(socket.id, " disconnected Websocket");
+
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
-      const user = room.findPlayerById(socket.id);
-      socket
-        .to(room.name)
-        .to(socket.id)
-        .emit("propagate-stop", user.name + " stopped the room", (points: number) => {
-          user.crowns = points;
+
+      if (room) {
+        room.removePlayer(socket.id);
+        socket.leave(room.name);
+        socket.to(room.name).emit("room-update", room.players);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  socket.on("trackAssert", (songList: string[], cb) => {
+    try {
+      const room = roomsService.getRoomsByUserId(socket.id);
+
+      if (room) {
+        const user = room.findPlayerById(socket.id);
+
+        const trackList = room.trackList;
+
+        let score = 0;
+
+        songList.forEach((song, index) => {
+          if (song) {
+            let trackName = "";
+
+            if (trackList[index].name.indexOf("(") > -1) {
+              trackName = trackList[index].name
+                .toLowerCase()
+                .substring(0, trackList[index].name.indexOf("("));
+            }
+
+            if (
+              trackList[index].name.toLowerCase().indexOf(" - ao vivo") > -1
+            ) {
+              trackName = trackList[index].name
+                .toLowerCase()
+                .substring(0, trackList[index].name.indexOf(" - ao vivo"));
+            }
+
+            if (
+              trackList[index].name.indexOf("(") == -1 &&
+              trackList[index].name.toLowerCase().indexOf(" - ao vivo") == -1
+            ) {
+              trackName = trackList[index].name.toLowerCase();
+            }
+
+            let percent = trackName.length / song.length;
+
+            if (trackName.indexOf(song.toLowerCase()) > -1 && percent > 0.5) {
+              console.log("Acertou");
+              score++;
+            }
+          }
         });
-      cb("stopped");
-    } catch (error) {
-      cb(error);
+
+        room.findPlayerById(socket.id).crowns = score;
+
+        room.result = [{ name: user.name, crowns: score }];
+
+        console.log(room.result);
+
+        let sorted = room.result.sort((a, b) => b.crowns - a.crowns);
+
+        if (room.result.length === room.players.length) {
+          console.log(room.name);
+          socket.to(room.name).emit("resume", JSON.stringify(sorted));
+          console.log("resume event sent!");
+          cb(JSON.stringify(sorted));
+        }
+      } else {
+        cb("Room not found");
+      }
+    } catch (e) {
+      console.error(e);
     }
   });
-
-  socket.on("start", (callback) => {
-    try {
-      const room = roomsService.getRoomsByUserId(socket.id);
-      const trackList = JSON.stringify(room.trackList.slice(0, room.steps))
-      socket.to(room.name).emit("propagate-start", trackList);
-      callback(trackList);
-    } catch (error) {
-      callback(error);
-    }
-  });
-
-  socket.on("send-points", (callback) => {
-    try {
-      const room = roomsService.getRoomsByUserId(socket.id);
-      const trackList = JSON.stringify(room.trackList.slice(0, room.steps))
-      socket.to(room.name).emit("propagate-start", trackList);
-      callback(trackList);
-    } catch (error) {
-      callback(error);
-    }
-  });
-
-  // socket.on("start");
 });
 
 // GET: / - return an HTML for intern tests
@@ -114,7 +194,7 @@ app.get("/", async (req: Request, res: Response) => {
 app.get("/room-points/:roomName", async (req: Request, res: Response) => {
   const roomName = req.params.roomName;
   const room = roomsService.getRoom(roomName);
-  room?.players
+  room?.players;
 
   res.json(room?.players);
 });

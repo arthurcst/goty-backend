@@ -1,6 +1,11 @@
 import { Track } from "./../spotify/spotify";
 import { User } from "./../user/user";
 
+interface Scores {
+  name: string;
+  crowns: number;
+}
+
 export class Room {
   private _players: User[] = []; // List of users
   private _name: string; // Room ID
@@ -10,6 +15,8 @@ export class Room {
   trackList: Track[] = [];
   started: boolean;
   finished: boolean;
+
+  private _result: Scores[] = [];
 
   owner: User;
 
@@ -25,6 +32,14 @@ export class Room {
     if (genres) {
       this.genres = genres;
     }
+  }
+
+  set result(result: Scores[]) {
+    this._result = [...this._result, ...result];
+  }
+
+  get result(): Scores[] {
+    return this._result;
   }
 
   equals(room: Room): boolean {
@@ -73,7 +88,7 @@ export class Room {
       this._players.push(player);
     }
   }
-  
+
   // find user by Id
   public findPlayerById(socketId: string): User {
     const player = this._players.find((player) => player.socketId === socketId);

@@ -183,7 +183,13 @@ export class SpotifyService {
 
     await this.spotifyApi
       .getRecommendations({
-        seed_artists: ["1elUiq4X7pxej6FRlrEzjM", "0hPar6ePAELiu9rYMdvMEo"],
+        seed_artists: [
+          "1elUiq4X7pxej6FRlrEzjM",
+          "0hPar6ePAELiu9rYMdvMEo",
+          "7n1XMwvxPf10t4OX6h6Ufy",
+          "7rXMvXRnWHaSwnVvPeUUfw",
+          "5YGY8feqx7naU7z4HrwZM6",
+        ],
         min_popularity: 50,
       })
       .then(
