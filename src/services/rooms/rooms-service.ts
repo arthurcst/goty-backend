@@ -9,14 +9,21 @@ export class RoomsService {
 
   constructor() {}
 
-  // Creates a room using infos from body request
+  /**
+   * Creates a Room and add in Room list.
+   * @param steps Steps quantity
+   * @param owner Owner user instance
+   * @param name Room name (identifier)
+   * @param genre genre list
+   * @returns Room instance
+   */
   public async createRoom(
     steps: number,
     owner: User,
     name: string,
-    gender?: string[]
+    genre?: string[]
   ) {
-    let newRoom = new Room(steps, owner, name, gender);
+    let newRoom = new Room(steps, owner, name, genre);
     newRoom.trackList = await spotifyService.getRecommendations();
 
     newRoom.addPlayer(owner);
@@ -26,6 +33,11 @@ export class RoomsService {
     return newRoom;
   }
 
+  /**
+   * Restart the specified room attributes
+   * @param roomName Room identifier
+   * @returns Room instance (reseted)
+   */
   public async restartRoom(roomName: string) {
     let room = this.Rooms.find((room) => room.name == roomName);
 
@@ -42,29 +54,47 @@ export class RoomsService {
     }
   }
 
-  // Add the new room into the rooms list
+  /**
+   * Add the new room into the rooms list
+   * @param room Room instance to be added on list
+   */
   private addRoom(room: Room): void {
     this.Rooms.push(room);
   }
 
-  // Get an especific room
+  /**
+   * Fetch especific room by identifier
+   * @param roomName find room by identifier
+   * @returns Room instance | undefined
+   */
   public getRoom(roomName: string): Room | undefined {
     return this.Rooms.find((room) => room.name === roomName);
   }
 
-  // Get rooms list
+  /**
+   * Fetch Rooms list
+   * @returns Room list
+   */
   public getRooms(): Room[] {
     return this.Rooms;
   }
 
-  // Find room by userName
+  /**
+   * Find room by userName
+   * @param userName Username string
+   * @returns Room instance | undefined
+   */
   public getRoomsByUserName(userName: string): Room | undefined {
     return this.Rooms.find((room) => {
       room.players.some((playerElement) => playerElement.name === userName);
     });
   }
 
-  // Find room by userId
+  /**
+   * Find room by userId
+   * @param userId user identifier string
+   * @returns Room instance | undefined if not found
+   */
   public getRoomsByUserId(userId: string): Room | undefined {
     const room = this.Rooms.find((room) => {
       const hasPlayer = room.players.some(
@@ -81,10 +111,13 @@ export class RoomsService {
     }
   }
 
-  // Find room by Gender
-  public getRoomsByGender(genderTracked: string): Room[] {
+  /**
+   * Fetch room by genre
+   * @deprecated
+   */
+  public getRoomsBygenre(genreTracked: string): Room[] {
     return this.Rooms.filter((room) =>
-      room.genres.find((gender) => gender === genderTracked)
+      room.genres.find((genre) => genre === genreTracked)
     );
   }
 }

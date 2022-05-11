@@ -145,6 +145,9 @@ export class SpotifyService {
     this.getAccessToken();
   }
 
+  /**
+   * Get access token from Spotify
+   */
   private getAccessToken() {
     this.spotifyApi.clientCredentialsGrant().then((data: any) => {
       console.log("Token Access Generated!");
@@ -152,6 +155,11 @@ export class SpotifyService {
     });
   }
 
+  /**
+   * Parse the response from spotify to an easy to use array
+   * @param data Spotify response
+   * @returns Parsed data
+   */
   private parseResponse(data: any): Track[] {
     let track: Track;
     let track_list: Track[] = [];
@@ -174,6 +182,10 @@ export class SpotifyService {
     return track_list;
   }
 
+  /**
+   * Fetch recommendations from spotify based on artist list
+   * @returns Array of tracks
+   */
   public async getRecommendations() {
     let recommendations: Track[] = [];
 

@@ -4,6 +4,7 @@ import * as io from "socket.io";
 import { Server } from "http";
 
 import { RoomsService } from "./src/services/rooms/rooms-service";
+import { deprecate } from "util";
 
 const path = require("path");
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 socketio.on("connection", (socket) => {
   console.log(socket.id, " connected Websocket");
 
+  // Start the room game
   socket.on("start", (callback) => {
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
@@ -37,6 +39,7 @@ socketio.on("connection", (socket) => {
     }
   });
 
+  // Propagate Stop event to all users in the room
   socket.on("stop", (cb) => {
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
@@ -52,6 +55,7 @@ socketio.on("connection", (socket) => {
     }
   });
 
+  // Create a new room
   socket.on("create-room", (roomName, userName, steps, cb) => {
     try {
       const user = new User(userName, socket.id);
@@ -73,13 +77,17 @@ socketio.on("connection", (socket) => {
     }
   });
 
+  // Join a room
   socket.on("join-room", (roomName, userName, cb) => {
     try {
       const user = new User(userName, socket.id);
       const room = roomsService.getRoom(roomName);
 
       if (room) {
+        // Add player to the room
         room.addPlayer(user);
+
+        // Join respective room socket
         socket.join(roomName);
 
         const players = room.players.map(function (p) {
@@ -91,6 +99,8 @@ socketio.on("connection", (socket) => {
         cb(players);
 
         console.log(userName, "entered room", roomName);
+
+        // Uncomment to log player list in any join
         console.log(room?.players);
       } else {
         cb("room dos not exist");
@@ -100,13 +110,16 @@ socketio.on("connection", (socket) => {
     }
   });
 
+  // Triggered when a user leaves a room or lost connection
   socket.on("disconnect", () => {
+    // comment this line to remove logs
     console.log(socket.id, " disconnected Websocket");
 
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
 
       if (room) {
+        // Remove the user from the room if he is in one
         room.removePlayer(socket.id);
         socket.leave(room.name);
         socket.to(room.name).emit("room-update", room.players);
@@ -116,16 +129,19 @@ socketio.on("connection", (socket) => {
     }
   });
 
+  // Fetch players responses and validate, return the game result
   socket.on("trackAssert", (songList: string[], cb) => {
     try {
       const room = roomsService.getRoomsByUserId(socket.id);
 
+      // Validate the room
       if (room) {
         const user = room.findPlayerById(socket.id);
         const trackList = room.trackList;
 
         let score = 0;
 
+        // Validate songList and calculate score
         songList.forEach((song, index) => {
           if (song) {
             let trackName = "";
@@ -160,15 +176,16 @@ socketio.on("connection", (socket) => {
           }
         });
 
+        // Update user score and push in a response array
         room.findPlayerById(socket.id).crowns = score;
         room.result = [{ name: user.name, crowns: score }];
 
+        // sort result array by crowns
         let sorted = room.result.sort((a, b) => b.crowns - a.crowns);
 
+        // If all players sent their responses, send the result
         if (room.result.length === room.players.length) {
-          console.log(room.name);
           socket.to(room.name).emit("resume", JSON.stringify(sorted));
-          console.log("resume event sent!");
           cb(JSON.stringify(sorted));
         }
       } else {
