@@ -61,6 +61,7 @@ socketio.on("connection", (socket) => {
         cb("room already exists");
       } else {
         const newRoom = roomsService.createRoom(steps, user, roomName);
+
         newRoom.then((roomElement) => {
           socket.join(roomName);
           cb(roomName);
@@ -121,7 +122,6 @@ socketio.on("connection", (socket) => {
 
       if (room) {
         const user = room.findPlayerById(socket.id);
-
         const trackList = room.trackList;
 
         let score = 0;
@@ -161,10 +161,7 @@ socketio.on("connection", (socket) => {
         });
 
         room.findPlayerById(socket.id).crowns = score;
-
         room.result = [{ name: user.name, crowns: score }];
-
-        console.log(room.result);
 
         let sorted = room.result.sort((a, b) => b.crowns - a.crowns);
 
@@ -189,14 +186,6 @@ app.get("/", async (req: Request, res: Response) => {
   // socketio.emit("user", "User connected test");
 
   res.sendFile(path.join(__dirname, "index.html"));
-});
-
-app.get("/room-points/:roomName", async (req: Request, res: Response) => {
-  const roomName = req.params.roomName;
-  const room = roomsService.getRoom(roomName);
-  room?.players;
-
-  res.json(room?.players);
 });
 
 // POST: /api/exit-room - remove an user from a room
