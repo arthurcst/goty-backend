@@ -11,7 +11,12 @@ const path = require("path");
 const port = 3000;
 const app: Application = express();
 const http = new Server(app);
-const socketio = new io.Server(http);
+const socketio = new io.Server(http, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+});
 
 const roomsService = new RoomsService();
 
